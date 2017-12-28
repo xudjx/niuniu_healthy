@@ -1,6 +1,6 @@
 package com.niuniu.motion.dto;
 
-public class GreetingDTO {
+public class GreetingDTO extends BaseDTO {
 
     private final long id;
     private final String content;
