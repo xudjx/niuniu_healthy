@@ -19,4 +19,10 @@ public class GreetingController {
         return new GreetingDTO(counter.incrementAndGet(),
                             String.format(template, name));
     }
+
+    @RequestMapping("/hello")
+    public GreetingDTO hello(@RequestParam(value="name", defaultValue="World") String name) {
+        return new GreetingDTO(counter.incrementAndGet(),
+                String.format(template, name));
+    }
 }

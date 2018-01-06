@@ -10,7 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping(path="/account")
+@RequestMapping(path = "/account")
 public class AccountController {
 
     @Autowired
@@ -37,9 +37,26 @@ public class AccountController {
         accountDTO.setAccount(account);
         accountDTO.setPassword(password);
         accountManager.logon(accountDTO);
-        ProfileDTO profileDTO = new ProfileDTO();
-        profileDTO.setAccount(account);
+        ProfileDTO profileDTO = accountManager.getProfileByAccount(account);
         return profileDTO;
     }
 
+    @RequestMapping(value = "/profile/{account}", method = RequestMethod.POST)
+    public ProfileDTO submitInfo(@PathVariable String account, @RequestBody ProfileDTO profileDTO) throws NiuSvrException {
+        if (profileDTO == null || StringUtils.isEmpty(account)) {
+            throw new NiuSvrException(ServerCommonErrorCode.PARAM_ERROR.getCode(), ServerCommonErrorCode.PARAM_ERROR.getMsg(), ServerCommonErrorCode.PARAM_ERROR.getChineseMsg());
+        }
+        profileDTO.setAccount(account);
+        accountManager.submitInfo(profileDTO);
+        return profileDTO;
+    }
+
+    @RequestMapping(value = "/profile/{account}", method = RequestMethod.GET)
+    public ProfileDTO getUserProfile(@PathVariable String account) throws NiuSvrException {
+        if (StringUtils.isEmpty(account)) {
+            throw new NiuSvrException(ServerCommonErrorCode.PARAM_ERROR.getCode(), ServerCommonErrorCode.PARAM_ERROR.getMsg(), ServerCommonErrorCode.PARAM_ERROR.getChineseMsg());
+        }
+        ProfileDTO profileDTO = accountManager.getProfileByAccount(account);
+        return profileDTO;
+    }
 }
