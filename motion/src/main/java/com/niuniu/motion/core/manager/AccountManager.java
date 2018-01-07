@@ -10,7 +10,7 @@ public interface AccountManager {
 
     AccountDTO logon(AccountDTO accountDTO) throws NiuSvrException;
 
-    ProfileDTO getProfileByAccount(String account) throws NiuSvrException;
+    ProfileDTO getProfileByAccount(long accountId) throws NiuSvrException;
 
-    ProfileDTO submitInfo(ProfileDTO profileDTO)throws NiuSvrException;
+    ProfileDTO submitInfo(long accountId, ProfileDTO profileDTO)throws NiuSvrException;
 }

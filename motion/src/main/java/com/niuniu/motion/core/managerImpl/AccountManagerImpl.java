@@ -1,77 +1,129 @@
 package com.niuniu.motion.core.managerImpl;
 
+import com.google.gson.Gson;
+import com.niuniu.motion.common.constant.Role;
+import com.niuniu.motion.common.constant.TimePeriod;
 import com.niuniu.motion.common.exception.NiuSvrException;
+import com.niuniu.motion.common.exception.ServerBsErrorCode;
 import com.niuniu.motion.common.exception.ServerCommonErrorCode;
+import com.niuniu.motion.common.util.AuthCodeUtil;
+import com.niuniu.motion.common.util.IdConverterUtil;
+import com.niuniu.motion.config.AuthConfig;
 import com.niuniu.motion.core.manager.AccountManager;
 import com.niuniu.motion.dto.AccountDTO;
 import com.niuniu.motion.dto.ProfileDTO;
+import com.niuniu.motion.model.AccessTokenInfo;
+import com.niuniu.motion.model.dao.AccessTokenDAO;
 import com.niuniu.motion.model.dao.AccountDAO;
 import com.niuniu.motion.model.dao.ProfileDAO;
+import com.niuniu.motion.model.query.AccessTokenDO;
 import com.niuniu.motion.model.query.AccountDO;
 import com.niuniu.motion.model.query.ProfileDO;
+import com.niuniu.motion.spring.security.TokenFilter;
 import org.apache.commons.lang.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 @Component
 public class AccountManagerImpl implements AccountManager {
 
+    private static final Logger logger = LoggerFactory.getLogger(AccountManagerImpl.class);
+
     @Autowired
     AccountDAO accountDAO;
     @Autowired
     ProfileDAO profileDAO;
+    @Autowired
+    AccessTokenDAO accessTokenDAO;
+    @Autowired
+    AuthConfig authConfig;
 
     @Override
     public AccountDTO registerAccount(AccountDTO accountDTO) throws NiuSvrException  {
-        AccountDO accountDO = accountDAO.findByAccount(accountDTO.getAccount());
+        AccountDO accountDO = accountDAO.findByAccountName(accountDTO.getAccountName());
         if (accountDO != null) {
-            throw new NiuSvrException(ServerCommonErrorCode.OBJECT_EXISTS.getCode(), ServerCommonErrorCode.OBJECT_EXISTS.getMsg(), ServerCommonErrorCode.OBJECT_EXISTS.getChineseMsg());
+            logger.warn("Account has exist: {}", accountDO);
+            throw new NiuSvrException(ServerCommonErrorCode.OBJECT_EXISTS);
         }
         AccountDO newAccount = new AccountDO();
-        newAccount.setAccount(accountDTO.getAccount());
+        newAccount.setAccountName(accountDTO.getAccountName());
         newAccount.setPassword(accountDTO.getPassword());
-        accountDAO.save(newAccount);
+        newAccount = accountDAO.save(newAccount);
+        accountDTO.setAccountId(IdConverterUtil.commonEncrypt(String.valueOf(newAccount.getId())));
         return accountDTO;
     }
 
     @Override
     public AccountDTO logon(AccountDTO accountDTO) throws NiuSvrException {
-        AccountDO accountDO = accountDAO.findByAccount(accountDTO.getAccount());
+        AccountDO accountDO = accountDAO.findByAccountName(accountDTO.getAccountName());
         if (accountDO == null) {
-            throw new NiuSvrException(ServerCommonErrorCode.OBJECT_NOT_FOUND.getCode(), ServerCommonErrorCode.OBJECT_NOT_FOUND.getMsg(), ServerCommonErrorCode.OBJECT_NOT_FOUND.getChineseMsg());
+            logger.warn("Logon failed, account not exist: {}", accountDTO);
+            throw new NiuSvrException(ServerCommonErrorCode.OBJECT_NOT_FOUND);
         }
         if (!accountDO.getPassword().equals(accountDTO.getPassword())) {
-            throw new NiuSvrException(ServerCommonErrorCode.PARAM_ERROR.getCode(), ServerCommonErrorCode.PARAM_ERROR.getMsg(), ServerCommonErrorCode.PARAM_ERROR.getChineseMsg());
+            logger.warn("Logon failed, password error: {}", accountDTO);
+            throw new NiuSvrException(ServerCommonErrorCode.PARAM_ERROR);
         }
+
+        // 登录成功生成加密id
+        Long accountId = accountDO.getId();
+        String accountCode = IdConverterUtil.commonEncrypt(String.valueOf(accountId));
+
+        // 生成authToken
+        AccessTokenInfo accessTokenInfo = new AccessTokenInfo();
+        accessTokenInfo.setExpireTime(System.currentTimeMillis() + TimePeriod.ACCESS_EXPIRE_TIME);
+        accessTokenInfo.setRole(Role.USER.getRole());
+        accessTokenInfo.setTokenId(accountId);
+        String authToken = AuthCodeUtil.authcodeEncode(new Gson().toJson(accessTokenInfo), authConfig.getAuthCodeSecret());
+
+        // 将authToken存储到DB， 这个信息以后需要加到redis中
+        AccessTokenDO dbAccountTokenDO = accessTokenDAO.findByAccountId(accountId);
+        AccessTokenDO accessTokenDO = new AccessTokenDO();
+        if (dbAccountTokenDO != null) {
+            accessTokenDO.setId(dbAccountTokenDO.getId());
+        }
+        accessTokenDO.setAccessToken(authToken);
+        accessTokenDO.setAccountId(accountId);
+        accessTokenDO.setExpireTime(accessTokenInfo.getExpireTime());
+        accessTokenDAO.save(accessTokenDO);
+
+        // 将结果返回
+        accountDTO.setAccountId(accountCode);
+        accountDTO.setAuthToken(authToken);
+        accountDTO.setAuthExpire(accessTokenInfo.getExpireTime());
+
         return accountDTO;
     }
 
     @Override
-    public ProfileDTO getProfileByAccount(String account) throws NiuSvrException {
-        ProfileDO dbProfile = profileDAO.findByAccount(account);
+    public ProfileDTO getProfileByAccount(long accountId) throws NiuSvrException {
+        ProfileDO dbProfile = profileDAO.findByAccountId(accountId);
         ProfileDTO resultProfile = new ProfileDTO();
-        resultProfile.setAccount(account);
-        if (dbProfile != null) {
-            resultProfile.setAge(dbProfile.getAge());
-            resultProfile.setAvatar(dbProfile.getAvatar());
-            resultProfile.setUserName(dbProfile.getUserName());
-            resultProfile.setGender(dbProfile.getGender());
+        if (dbProfile == null) {
+            logger.warn("Profile not exist: {}", accountId);
+            throw new NiuSvrException(ServerBsErrorCode.PROFILE_NOT_EXIST);
         }
+        AccountDO accountDO = accountDAO.findOne(accountId);
+        BeanUtils.copyProperties(dbProfile, resultProfile);
+        resultProfile.setAccountName(accountDO.getAccountName());
+        resultProfile.setAccountId(IdConverterUtil.commonEncrypt(String.valueOf(accountDO.getId())));
         return resultProfile;
     }
 
     @Override
-    public ProfileDTO submitInfo(ProfileDTO profileDTO) throws NiuSvrException {
-        ProfileDO dbProfile = profileDAO.findByAccount(profileDTO.getAccount());
+    public ProfileDTO submitInfo(long accountId, ProfileDTO profileDTO) throws NiuSvrException {
+        ProfileDO dbProfile = profileDAO.findByAccountId(accountId);
+        AccountDO accountDO = accountDAO.findOne(accountId);
         ProfileDTO resultProfile = new ProfileDTO();
         if (dbProfile == null) {
             ProfileDO profileDO = new ProfileDO();
-            profileDO.setAccount(profileDTO.getAccount());
-            profileDO.setAge(profileDTO.getAge());
-            profileDO.setAvatar(profileDTO.getAvatar());
-            profileDO.setGender(profileDTO.getGender());
-            profileDO.setUserName(profileDTO.getUserName());
+            BeanUtils.copyProperties(profileDTO, profileDO);
+            profileDO.setAccountId(accountId);
             profileDAO.save(profileDO);
+            BeanUtils.copyProperties(profileDO, resultProfile);
         } else {
             if (profileDTO.getAge() != null) {
                 dbProfile.setAge(profileDTO.getAge());
@@ -86,7 +138,10 @@ public class AccountManagerImpl implements AccountManager {
                 dbProfile.setUserName(profileDTO.getUserName());
             }
             profileDAO.save(dbProfile);
+            BeanUtils.copyProperties(dbProfile, resultProfile);
         }
+        resultProfile.setAccountName(accountDO.getAccountName());
+        resultProfile.setAccountId(IdConverterUtil.commonEncrypt(String.valueOf(accountId)));
         return resultProfile;
     }
 }
