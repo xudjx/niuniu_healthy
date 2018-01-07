@@ -5,5 +5,5 @@ import org.springframework.data.repository.CrudRepository;
 
 public interface AccountDAO extends CrudRepository<AccountDO, Long> {
 
-    AccountDO findByAccount(String account);
+    AccountDO findByAccountName(String accountName);
 }

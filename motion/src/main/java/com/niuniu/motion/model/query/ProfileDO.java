@@ -1,7 +1,5 @@
 package com.niuniu.motion.model.query;
 
-import org.hibernate.validator.constraints.Length;
-
 import javax.persistence.*;
 
 @Entity
@@ -12,7 +10,7 @@ public class ProfileDO {
     @GeneratedValue
     private Long id;
     @Column(name = "account_id")
-    private String account;
+    private Long accountId;
     @Column(name = "user_name")
     private String userName;
     @Column(name = "gender")
@@ -22,12 +20,20 @@ public class ProfileDO {
     @Column(name = "avatar", length = 1000)
     private String avatar;
 
-    public String getAccount() {
-        return account;
+    public Long getId() {
+        return id;
     }
 
-    public void setAccount(String account) {
-        this.account = account;
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    public Long getAccountId() {
+        return accountId;
+    }
+
+    public void setAccountId(Long accountId) {
+        this.accountId = accountId;
     }
 
     public String getUserName() {
