@@ -28,4 +28,25 @@ public class NiuSvrException extends Exception implements Serializable {
     public String getChineseMsg() {
         return chineseMsg;
     }
+
+    public NiuSvrException(ServerCommonErrorCode commonError) {
+        super(commonError.getMsg());
+        this.code = commonError.getCode();
+        this.msg = commonError.getMsg();
+        this.chineseMsg = commonError.getChineseMsg();
+    }
+
+    public NiuSvrException(ServerBsErrorCode bsErrorCode) {
+        super(bsErrorCode.getMsg());
+        this.code = bsErrorCode.getCode();
+        this.msg = bsErrorCode.getMsg();
+        this.chineseMsg = bsErrorCode.getChineseMsg();
+    }
+
+    public NiuSvrException(CommonUtilErrorCode errorCode) {
+        super(errorCode.getErrorMessage());
+        this.code = errorCode.getErrorCode();
+        this.msg = errorCode.getErrorMessage();
+        this.chineseMsg = errorCode.getChineseErrorMessage();
+    }
 }
