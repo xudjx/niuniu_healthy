@@ -12,14 +12,16 @@ import com.niuniu.motion.config.AuthConfig;
 import com.niuniu.motion.core.manager.AccountManager;
 import com.niuniu.motion.dto.AccountDTO;
 import com.niuniu.motion.dto.ProfileDTO;
+import com.niuniu.motion.dto.RecordWeightDTO;
 import com.niuniu.motion.model.AccessTokenInfo;
 import com.niuniu.motion.model.dao.AccessTokenDAO;
 import com.niuniu.motion.model.dao.AccountDAO;
 import com.niuniu.motion.model.dao.ProfileDAO;
+import com.niuniu.motion.model.dao.RecordWeightDAO;
 import com.niuniu.motion.model.query.AccessTokenDO;
 import com.niuniu.motion.model.query.AccountDO;
 import com.niuniu.motion.model.query.ProfileDO;
-import com.niuniu.motion.spring.security.TokenFilter;
+import com.niuniu.motion.model.query.RecordWeightDO;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -40,18 +42,20 @@ public class AccountManagerImpl implements AccountManager {
     AccessTokenDAO accessTokenDAO;
     @Autowired
     AuthConfig authConfig;
+    @Autowired
+    RecordWeightDAO recordWeightDAO;
 
     @Override
     public AccountDTO registerAccount(AccountDTO accountDTO) throws NiuSvrException  {
-        AccountDO accountDO = accountDAO.findByAccountName(accountDTO.getAccountName());
-        if (accountDO != null) {
+        AccountDO accountDO = accountDAO.findByAccountName(accountDTO.getAccountName());//去数据库里捞这个用户名
+        if (accountDO != null) {   //如果已存在此用户则抛出异常
             logger.warn("Account has exist: {}", accountDO);
             throw new NiuSvrException(ServerCommonErrorCode.OBJECT_EXISTS);
         }
         AccountDO newAccount = new AccountDO();
         newAccount.setAccountName(accountDTO.getAccountName());
         newAccount.setPassword(accountDTO.getPassword());
-        newAccount = accountDAO.save(newAccount);
+        newAccount = accountDAO.save(newAccount);   //设置完成之后dao层save数据
         accountDTO.setAccountId(IdConverterUtil.commonEncrypt(String.valueOf(newAccount.getId())));
         return accountDTO;
     }
@@ -120,7 +124,7 @@ public class AccountManagerImpl implements AccountManager {
         ProfileDTO resultProfile = new ProfileDTO();
         if (dbProfile == null) {
             ProfileDO profileDO = new ProfileDO();
-            BeanUtils.copyProperties(profileDTO, profileDO);
+            BeanUtils.copyProperties(profileDTO, profileDO);//
             profileDO.setAccountId(accountId);
             profileDAO.save(profileDO);
             BeanUtils.copyProperties(profileDO, resultProfile);
@@ -143,5 +147,17 @@ public class AccountManagerImpl implements AccountManager {
         resultProfile.setAccountName(accountDO.getAccountName());
         resultProfile.setAccountId(IdConverterUtil.commonEncrypt(String.valueOf(accountId)));
         return resultProfile;
+    }
+
+    /**
+     *  recordweight
+     * */
+    @Override
+    public RecordWeightDTO setWeight(long accountId, RecordWeightDTO recordWeightDTO) throws NiuSvrException {
+        RecordWeightDO recordWeightDO = new RecordWeightDO();
+        BeanUtils.copyProperties(recordWeightDTO, recordWeightDO);
+        recordWeightDO.setAccountId(accountId);
+        recordWeightDAO.save(recordWeightDO);
+        return recordWeightDTO;
     }
 }

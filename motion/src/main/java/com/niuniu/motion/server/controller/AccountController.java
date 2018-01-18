@@ -5,6 +5,7 @@ import com.niuniu.motion.common.exception.NiuSvrException;
 import com.niuniu.motion.common.exception.ServerCommonErrorCode;
 import com.niuniu.motion.core.manager.AccountManager;
 import com.niuniu.motion.dto.ProfileDTO;
+import com.niuniu.motion.dto.RecordWeightDTO;
 import com.niuniu.motion.model.AccessTokenInfo;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -50,5 +51,16 @@ public class AccountController {
         Long uID = token.getTokenId();
         ProfileDTO profileDTO = accountManager.getProfileByAccount(uID);
         return profileDTO;
+    }
+
+    @RequestMapping(value = "/record/{accountId}/weight", method = RequestMethod.POST)
+    public RecordWeightDTO setWeight(@PathVariable String accountId, @ModelAttribute
+            ("token") AccessTokenInfo token, @RequestBody RecordWeightDTO recordWeightDTO) throws NiuSvrException{
+        if (StringUtils.isEmpty(accountId)) {
+            throw new NiuSvrException(ServerCommonErrorCode.PARAM_ERROR);
+        }
+        Long uID = token.getTokenId();
+        RecordWeightDTO eDTO = accountManager.setWeight(uID, recordWeightDTO);
+        return eDTO ;
     }
 }
