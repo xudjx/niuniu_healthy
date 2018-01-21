@@ -6,8 +6,10 @@ import com.niuniu.motion.common.constant.TimePeriod;
 import com.niuniu.motion.common.exception.NiuSvrException;
 import com.niuniu.motion.common.exception.ServerBsErrorCode;
 import com.niuniu.motion.common.exception.ServerCommonErrorCode;
+import com.niuniu.motion.common.pojo.NiuniuRedisTemplate;
 import com.niuniu.motion.common.util.AuthCodeUtil;
 import com.niuniu.motion.common.util.IdConverterUtil;
+import com.niuniu.motion.common.util.RedisUtil;
 import com.niuniu.motion.config.AuthConfig;
 import com.niuniu.motion.core.manager.AccountManager;
 import com.niuniu.motion.dto.AccountDTO;
@@ -40,6 +42,8 @@ public class AccountManagerImpl implements AccountManager {
     AccessTokenDAO accessTokenDAO;
     @Autowired
     AuthConfig authConfig;
+    @Autowired
+    NiuniuRedisTemplate redisTemplate;
 
     @Override
     public AccountDTO registerAccount(AccountDTO accountDTO) throws NiuSvrException  {
@@ -80,15 +84,18 @@ public class AccountManagerImpl implements AccountManager {
         String authToken = AuthCodeUtil.authcodeEncode(new Gson().toJson(accessTokenInfo), authConfig.getAuthCodeSecret());
 
         // 将authToken存储到DB， 这个信息以后需要加到redis中
-        AccessTokenDO dbAccountTokenDO = accessTokenDAO.findByAccountId(accountId);
-        AccessTokenDO accessTokenDO = new AccessTokenDO();
-        if (dbAccountTokenDO != null) {
-            accessTokenDO.setId(dbAccountTokenDO.getId());
-        }
-        accessTokenDO.setAccessToken(authToken);
-        accessTokenDO.setAccountId(accountId);
-        accessTokenDO.setExpireTime(accessTokenInfo.getExpireTime());
-        accessTokenDAO.save(accessTokenDO);
+//        AccessTokenDO dbAccountTokenDO = accessTokenDAO.findByAccountId(accountId);
+//        AccessTokenDO accessTokenDO = new AccessTokenDO();
+//        if (dbAccountTokenDO != null) {
+//            accessTokenDO.setId(dbAccountTokenDO.getId());
+//        }
+//        accessTokenDO.setAccessToken(authToken);
+//        accessTokenDO.setAccountId(accountId);
+//        accessTokenDO.setExpireTime(accessTokenInfo.getExpireTime());
+//        accessTokenDAO.save(accessTokenDO);
+
+        // 将token存储到redis中
+        RedisUtil.setAccessToken(redisTemplate, accountId, authToken);
 
         // 将结果返回
         accountDTO.setAccountId(accountCode);
