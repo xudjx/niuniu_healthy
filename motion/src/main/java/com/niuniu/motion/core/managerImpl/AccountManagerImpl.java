@@ -158,6 +158,9 @@ public class AccountManagerImpl implements AccountManager {
 
     /**
      *  recordweight
+     *
+     *  @param accountId id integer
+     *  @param recordWeightDTO 请求传输过来的信息
      * */
     @Override
     public RecordWeightDTO setWeight(long accountId, RecordWeightDTO recordWeightDTO) throws NiuSvrException {
