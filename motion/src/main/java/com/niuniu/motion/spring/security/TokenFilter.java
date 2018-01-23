@@ -1,9 +1,12 @@
 package com.niuniu.motion.spring.security;
 
 import com.google.gson.Gson;
+import com.niuniu.motion.common.constant.Role;
 import com.niuniu.motion.common.exception.NiuSvrException;
 import com.niuniu.motion.common.exception.ServerCommonErrorCode;
+import com.niuniu.motion.common.pojo.NiuniuRedisTemplate;
 import com.niuniu.motion.common.util.AuthCodeUtil;
+import com.niuniu.motion.common.util.RedisUtil;
 import com.niuniu.motion.config.AuthConfig;
 import com.niuniu.motion.model.AccessTokenInfo;
 import com.niuniu.motion.model.dao.AccessTokenDAO;
@@ -32,6 +35,8 @@ public class TokenFilter extends GenericFilterBean {
     AuthConfig authConfig;
     @Autowired
     AccessTokenDAO accessTokenDAO;
+    @Autowired
+    NiuniuRedisTemplate redisTemplate;
 
     @Override
     public void doFilter(ServletRequest request,
@@ -40,7 +45,9 @@ public class TokenFilter extends GenericFilterBean {
         HttpServletRequest req = (HttpServletRequest) request;
         HttpServletResponse resp = (HttpServletResponse) response;
 
-        if (req.getRequestURI().equals("/account/register") || req.getRequestURI().equals("/account/logon")) {
+        if (req.getRequestURI().equals("/account/register")
+                || req.getRequestURI().equals("/account/logon")
+                || req.getRequestURI().startsWith("/rest/")) {
             filterChain.doFilter(request, response);
             return;
         }
@@ -81,8 +88,10 @@ public class TokenFilter extends GenericFilterBean {
                 throw new NiuSvrException(ServerCommonErrorCode.INCORRECT_AUTH_TOKEN);
             }
             Long accountId = tokenInfo.getTokenId();
-            AccessTokenDO accessTokenDO = accessTokenDAO.findByAccountId(accountId);
-            String serverAccessToken = accessTokenDO != null ? accessTokenDO.getAccessToken() : null;
+            String serverAccessToken = "";
+            if (tokenInfo.getRole() == Role.USER.getRole()) {
+                serverAccessToken = RedisUtil.getAccessToken(redisTemplate, accountId);
+            }
             if (serverAccessToken == null || !authCode.equals(serverAccessToken)) {
                 logger.warn("serverAccessToken:{}, userAccessToken:{}", serverAccessToken, authCode);
                 throw new NiuSvrException(ServerCommonErrorCode.INCORRECT_AUTH_TOKEN);
