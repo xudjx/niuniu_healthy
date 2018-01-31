@@ -52,7 +52,7 @@ public class MyRestController {
         Gson gson = new Gson();
         Type jsonType = new TypeToken<RestResultDTO<ProvinceDTO>>() {}.getType();
         RestResultDTO<ProvinceDTO> weatherCitysDTO = gson.fromJson(citysJson, jsonType);
-        List<CityDO> cityDOList = restManager.saveProinveDTO(weatherCitysDTO.result);
+        List<CityDO> cityDOList = restManager.saveProvinceDTO(weatherCitysDTO.result);
 
         /**
         if (weatherCitysDTO != null && weatherCitysDTO.result != null) {
