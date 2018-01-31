@@ -101,7 +101,7 @@ public class AuthCodeUtil {
         int j = 0;
         for (int i = 0; i < kLen; i++) {
 
-            j = (j + (int) ((mBox[i] + 256) % 256) + pass[i % pass.length])
+            j = (j + (mBox[i] + 256) % 256 + pass[i % pass.length])
                     % kLen;
 
             byte temp = mBox[i];
@@ -253,7 +253,7 @@ public class AuthCodeUtil {
 
         for (int offset = 0; offset < input.length; offset++) {
             i = (i + 1) % mBox.length;
-            j = (j + (int) ((mBox[i] + 256) % 256)) % mBox.length;
+            j = (j + (mBox[i] + 256) % 256) % mBox.length;
 
             byte temp = mBox[i];
             mBox[i] = mBox[j];
@@ -264,14 +264,14 @@ public class AuthCodeUtil {
             // mBox[j] 一定比 mBox.Length 小，不需要在取模
             byte b = mBox[(toInt(mBox[i]) + toInt(mBox[j])) % mBox.length];
 
-            output[offset] = (byte) ((int) a ^ (int) toInt(b));
+            output[offset] = (byte) ((int) a ^ toInt(b));
         }
 
         return output;
     }
 
     private static int toInt(byte b) {
-        return (int) ((b + 256) % 256);
+        return (b + 256) % 256;
     }
 
     private static long getUnixTimestamp() {

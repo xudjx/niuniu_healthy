@@ -16,14 +16,8 @@ import com.niuniu.motion.dto.AccountDTO;
 import com.niuniu.motion.dto.ProfileDTO;
 import com.niuniu.motion.dto.RecordWeightDTO;
 import com.niuniu.motion.model.AccessTokenInfo;
-import com.niuniu.motion.model.dao.AccessTokenDAO;
-import com.niuniu.motion.model.dao.AccountDAO;
-import com.niuniu.motion.model.dao.ProfileDAO;
-import com.niuniu.motion.model.dao.RecordWeightDAO;
-import com.niuniu.motion.model.query.AccessTokenDO;
-import com.niuniu.motion.model.query.AccountDO;
-import com.niuniu.motion.model.query.ProfileDO;
-import com.niuniu.motion.model.query.RecordWeightDO;
+import com.niuniu.motion.model.dao.*;
+import com.niuniu.motion.model.query.*;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -48,6 +42,7 @@ public class AccountManagerImpl implements AccountManager {
     RecordWeightDAO recordWeightDAO;
     @Autowired
     NiuniuRedisTemplate redisTemplate;
+
 
     @Override
     public AccountDTO registerAccount(AccountDTO accountDTO) throws NiuSvrException  {

@@ -1,38 +1,59 @@
-package com.niuniu.motion.dto.weather;
+package com.niuniu.motion.model.query;
+import javax.persistence.*;
 
-import com.niuniu.motion.dto.BaseDTO;
-
-import java.util.List;
-
-public class CityWeatherDTO extends BaseDTO {
-
+@Entity
+@Table(name = "t_cityWeather")
+public class CityWeatherDO {
+    @Id
+    @GeneratedValue
+    private Long cityId ;
+    @Column(name = "airCondition")
     public String airCondition;
+    @Column(name = "city")
     public String city;//**************//
+    @Column(name = "coldIndex")
     public String coldIndex;
+    @Column(name = "date")
     public String date;
+    @Column(name = "distrct")
     public String distrct;//****************//
+    @Column(name = "dressingIndex")
     public String dressingIndex;
+    @Column(name = "exerciseIndex")
     public String exerciseIndex;
 
-    List<WeatherFeatureDTO> future;
 
+    @Column(name = "humidity")
     public String humidity;
+    @Column(name = "pollutionIndex")
     public String pollutionIndex;
+    @Column(name = "province")
     public String province;//*************//
+    @Column(name = "sunrise")
     public String sunrise;
+    @Column(name = "sunset")
     public String sunset;
+    @Column(name = "temperature")
     public String temperature;
+    @Column(name = "time")
     public String time;
+    @Column(name = "updateTime")
     public String  updateTime;
+    @Column(name = "washIndex")
     public String washIndex;
+    @Column(name = "weather")
     public String weather;
+    @Column(name = "week")
     public String week;
+    @Column(name = "wind")
     public String wind;
 
+    public Long getCityId() {
+        return cityId;
+    }
 
-
-    public void setDate(String date) {
-        this.date = date;
+    public void setCityId(Long cityId) {
+        this.cityId = cityId;
     }
 
     public String getAirCondition() {
@@ -57,6 +78,14 @@ public class CityWeatherDTO extends BaseDTO {
 
     public void setColdIndex(String coldIndex) {
         this.coldIndex = coldIndex;
+    }
+
+    public String getDate() {
+        return date;
+    }
+
+    public void setDate(String date) {
+        this.date = date;
     }
 
     public String getDistrct() {
@@ -107,6 +136,21 @@ public class CityWeatherDTO extends BaseDTO {
         this.province = province;
     }
 
+    public String getSunrise() {
+        return sunrise;
+    }
+
+    public void setSunrise(String sunrise) {
+        this.sunrise = sunrise;
+    }
+
+    public String getSunset() {
+        return sunset;
+    }
+
+    public void setSunset(String sunset) {
+        this.sunset = sunset;
+    }
 
     public String getTemperature() {
         return temperature;
@@ -116,6 +160,21 @@ public class CityWeatherDTO extends BaseDTO {
         this.temperature = temperature;
     }
 
+    public String getTime() {
+        return time;
+    }
+
+    public void setTime(String time) {
+        this.time = time;
+    }
+
+    public String getUpdateTime() {
+        return updateTime;
+    }
+
+    public void setUpdateTime(String updateTime) {
+        this.updateTime = updateTime;
+    }
 
     public String getWashIndex() {
         return washIndex;
@@ -147,49 +206,5 @@ public class CityWeatherDTO extends BaseDTO {
 
     public void setWind(String wind) {
         this.wind = wind;
-    }
-
-    public String getDate() {
-        return date;
-    }
-
-    public String getSunrise() {
-        return sunrise;
-    }
-
-    public void setSunrise(String sunrise) {
-        this.sunrise = sunrise;
-    }
-
-    public String getSunset() {
-        return sunset;
-    }
-
-    public void setSunset(String sunset) {
-        this.sunset = sunset;
-    }
-
-    public String getTime() {
-        return time;
-    }
-
-    public void setTime(String time) {
-        this.time = time;
-    }
-
-    public String getUpdateTime() {
-        return updateTime;
-    }
-
-    public void setUpdateTime(String updateTime) {
-        this.updateTime = updateTime;
-    }
-
-    public List<WeatherFeatureDTO> getFuture() {
-        return future;
-    }
-
-    public void setFuture(List<WeatherFeatureDTO> future) {
-        this.future = future;
     }
 }

@@ -4,7 +4,9 @@ import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import com.niuniu.motion.common.exception.NiuSvrException;
 import com.niuniu.motion.config.AuthConfig;
+import com.niuniu.motion.core.manager.RestCityManager;
 import com.niuniu.motion.dto.weather.*;
+import com.niuniu.motion.model.query.CityDO;
 import com.niuniu.motion.rest.RestTemplateFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -13,8 +15,6 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.client.RestTemplate;
 
 import java.lang.reflect.Type;
-import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 
 @RestController
@@ -24,6 +24,8 @@ public class MyRestController {
 
     @Autowired
     AuthConfig authConfig;
+    @Autowired
+    RestCityManager restManager;
 
     @RequestMapping(value = "/rest/weather", method = RequestMethod.GET)
     public Object searchWeather(@RequestParam String city,
@@ -35,7 +37,7 @@ public class MyRestController {
     }
 
     @RequestMapping(value = "/rest/weather/citys", method = RequestMethod.GET)
-    public Object getListCity() throws NiuSvrException {
+    public Object getCity() throws NiuSvrException {
         RestTemplate restTemplate = RestTemplateFactory.getInstance();
         String weatherCityUrl = String.format("http://apicloud.mob.com/v1/weather/citys?key=%s", authConfig.getMobAppKey());
         String citys = restTemplate.getForObject(weatherCityUrl, String.class);
@@ -43,14 +45,16 @@ public class MyRestController {
     }
 
     @RequestMapping(value = "/rest/weather/batch", method = RequestMethod.GET)
-    public RestResultDTO batchCityWeather() throws NiuSvrException {
+    public List<CityDO> batchCityWeather() throws NiuSvrException {
         RestTemplate restTemplate = RestTemplateFactory.getInstance();
         String weatherCityUrl = String.format("http://apicloud.mob.com/v1/weather/citys?key=%s", authConfig.getMobAppKey());
         String citysJson = restTemplate.getForObject(weatherCityUrl, String.class);
         Gson gson = new Gson();
-        Type jsonType = new TypeToken<RestResultDTO<ProvinceDTO>>() {
-        }.getType();
+        Type jsonType = new TypeToken<RestResultDTO<ProvinceDTO>>() {}.getType();
         RestResultDTO<ProvinceDTO> weatherCitysDTO = gson.fromJson(citysJson, jsonType);
+        List<CityDO> cityDOList = restManager.saveProinveDTO(weatherCitysDTO.result);
+
+        /**
         if (weatherCitysDTO != null && weatherCitysDTO.result != null) {
             for (int i = 0; i < 1 && i < weatherCitysDTO.result.size(); i++) {
                 ProvinceDTO provinceDTO = weatherCitysDTO.getResult().get(i);
@@ -84,7 +88,8 @@ public class MyRestController {
                 }
             }
         }
-        return weatherCitysDTO;
+        **/
+        return cityDOList;
     }
 
     @RequestMapping(value = "/rest/environment", method = RequestMethod.GET)
