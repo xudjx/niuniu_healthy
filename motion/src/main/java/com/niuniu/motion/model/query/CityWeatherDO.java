@@ -5,7 +5,7 @@ import javax.persistence.*;
 @Table(name = "t_cityWeather")
 public class CityWeatherDO {
     @Id
-    @GeneratedValue
+    @Column(name = "city_id")
     private Long cityId ;
     @Column(name = "airCondition")
     public String airCondition;

@@ -7,6 +7,19 @@ public class ResultDTO extends BaseDTO {
     public static final String SUCCESS = "success";
     public static final String FAILED = "failed";
 
+    public ResultDTO(String msg) {
+        this.msg = msg;
+    }
+
+    public ResultDTO(String msg, NiuSvrException errorMsg) {
+        this.msg = msg;
+        this.errorMsg = errorMsg;
+    }
+
+    public ResultDTO() {
+
+    }
+
     public String msg;  //success 成功， failed 失败
 
     public int retCode;

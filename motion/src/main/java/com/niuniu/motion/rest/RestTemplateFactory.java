@@ -7,12 +7,16 @@ public class RestTemplateFactory {
 
     private static RestTemplate restTemplate;
 
-    public static  RestTemplate getInstance() {
-        if(restTemplate == null) {
-            SimpleClientHttpRequestFactory factory = new SimpleClientHttpRequestFactory();
-            factory.setReadTimeout(5000);
-            factory.setConnectTimeout(5000);
-            restTemplate = new RestTemplate(factory);
+    public static RestTemplate getInstance() {
+        if (restTemplate == null) {
+            synchronized (RestTemplateFactory.class) {
+                if(restTemplate == null) {
+                    SimpleClientHttpRequestFactory factory = new SimpleClientHttpRequestFactory();
+                    factory.setReadTimeout(5000);
+                    factory.setConnectTimeout(5000);
+                    restTemplate = new RestTemplate(factory);
+                }
+            }
         }
         return restTemplate;
     }

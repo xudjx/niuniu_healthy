@@ -7,6 +7,7 @@ import javax.persistence.*;
 public class CityDO {
     @Id
     @GeneratedValue
+    @Column(name = "city_id")
     private Long cityId;
     @Column(name = "province")
     private String province;
