@@ -5,11 +5,12 @@ import org.springframework.context.annotation.Configuration;
 
 import javax.servlet.Filter;
 
-@Configuration
-public class NiuFilters {
-
-    @Bean
-    public Filter tokenFilter() {
-        return new TokenFilter();
-    }
-}
+//@Configuration
+//public class NiuFilters {
+//
+//    @Bean
+//    public Filter tokenFilter() {
+//        // 添加接口鉴权校验
+//        return new TokenFilter();
+//    }
+//}
