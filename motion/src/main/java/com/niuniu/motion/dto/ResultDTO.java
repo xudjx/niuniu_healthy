@@ -4,44 +4,55 @@ import com.niuniu.motion.common.exception.NiuSvrException;
 
 public class ResultDTO extends BaseDTO {
 
-    public static final String SUCCESS = "success";
-    public static final String FAILED = "failed";
+    public static final int SUCCESS = 1;
+    public static final int FAILED = 0;
 
-    public ResultDTO(String msg) {
-        this.msg = msg;
+    public ResultDTO(int status) {
+        this.status = status;
     }
 
-    public ResultDTO(String msg, NiuSvrException errorMsg) {
-        this.msg = msg;
-        this.errorMsg = errorMsg;
+    public ResultDTO(int status, String resultCode, String resultDesc) {
+        this.status = status;
+        this.resultDesc = resultDesc;
+        this.resultCode = resultCode;
     }
 
     public ResultDTO() {
 
     }
 
-    public String msg;  //success 成功， failed 失败
+    public int status;
 
-    public int retCode;
+    public String resultDesc;
+
+    public String resultCode;
 
     public Object result;
 
-    public int getRetCode() {
-        return retCode;
+    public int getStatus() {
+        return status;
     }
 
-    public void setRetCode(int retCode) {
-        this.retCode = retCode;
+    public void setStatus(int status) {
+        this.status = status;
     }
 
     public NiuSvrException errorMsg;
 
-    public String getMsg() {
-        return msg;
+    public String getResultCode() {
+        return resultCode;
     }
 
-    public void setMsg(String msg) {
-        this.msg = msg;
+    public void setResultCode(String resultCode) {
+        this.resultCode = resultCode;
+    }
+
+    public String getResultDesc() {
+        return resultDesc;
+    }
+
+    public void setResultDesc(String resultDesc) {
+        this.resultDesc = resultDesc;
     }
 
     public Object getResult() {

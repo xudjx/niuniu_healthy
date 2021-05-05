@@ -10,7 +10,7 @@ import javax.servlet.Filter;
 //
 //    @Bean
 //    public Filter tokenFilter() {
-//        // 添加接口鉴权校验
+//        // 添加接口Token校验
 //        return new TokenFilter();
 //    }
 //}

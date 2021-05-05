@@ -1,7 +1,7 @@
 package com.niuniu.motion.core.managerImpl;
 
 import com.google.common.reflect.TypeToken;
-import com.google.gson.Gson;
+import com.google.gson.*;
 import com.niuniu.motion.common.exception.NiuSvrException;
 import com.niuniu.motion.common.util.SingletonThreadPool;
 import com.niuniu.motion.config.AuthConfig;
@@ -10,8 +10,8 @@ import com.niuniu.motion.dto.ResultDTO;
 import com.niuniu.motion.dto.weather.*;
 import com.niuniu.motion.model.dao.CityDAO;
 import com.niuniu.motion.model.dao.CityWeatherDAO;
-import com.niuniu.motion.model.query.CityDO;
-import com.niuniu.motion.model.query.CityWeatherDO;
+import com.niuniu.motion.model.bean.CityDO;
+import com.niuniu.motion.model.bean.CityWeatherDO;
 import com.niuniu.motion.rest.RestTemplateFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -40,6 +40,19 @@ public class RestCityManagerImpl implements RestCityManager {
     Environment environment;
     @Autowired
     CityWeatherDAO cityWeatherDAO;
+
+    @Override
+    public void saveCities(String cityJson) {
+        Gson gson = new Gson();
+        JsonParser parser = new JsonParser();
+        JsonElement element = parser.parse(cityJson);
+        JsonObject root = element.getAsJsonObject();
+        JsonArray data = root.getAsJsonArray("result");
+        List<CityDO> cityDOS = gson.fromJson(data, new TypeToken<List<CityDO>>(){}.getType());
+        for (CityDO cityDO : cityDOS) {
+            cityDAO.save(cityDO);
+        }
+    }
 
     @Override
     public List<CityDO> saveProvinceDTO(List<ProvinceDTO> provinceDTOList) {
@@ -93,7 +106,7 @@ public class RestCityManagerImpl implements RestCityManager {
                         CityWeatherDTO cityWeatherDTO = weathers.get(0);
                         CityWeatherDO weatherDO = new CityWeatherDO();
                         BeanUtils.copyProperties(cityWeatherDTO, weatherDO);
-                        weatherDO.setCityId(cityDO.getCityId());
+                        weatherDO.setCityId(cityDO.getId());
                         cityWeatherDAO.save(weatherDO);
                     }
                 }

@@ -7,7 +7,7 @@ import com.niuniu.motion.config.AuthConfig;
 import com.niuniu.motion.core.manager.RestCityManager;
 import com.niuniu.motion.dto.ResultDTO;
 import com.niuniu.motion.dto.weather.*;
-import com.niuniu.motion.model.query.CityDO;
+import com.niuniu.motion.model.bean.CityDO;
 import com.niuniu.motion.rest.RestTemplateFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -45,6 +45,7 @@ public class MyRestController {
         RestTemplate restTemplate = RestTemplateFactory.getInstance();
         String weatherCityUrl = String.format(environment.getProperty("rest.weather.cities"), authConfig.getMobAppKey());
         String citys = restTemplate.getForObject(weatherCityUrl, String.class);
+        restManager.saveCities(citys);
         return citys;
     }
 
@@ -71,7 +72,9 @@ public class MyRestController {
         try {
             restManager.batchCitiesWeather();
         } catch (NiuSvrException e) {
-            return new ResultDTO(ResultDTO.FAILED, e);
+            ResultDTO dto = new ResultDTO(ResultDTO.FAILED);
+            dto.setErrorMsg(e);
+            return dto;
         }
         return new ResultDTO(ResultDTO.SUCCESS);
     }

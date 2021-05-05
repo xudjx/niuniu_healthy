@@ -17,7 +17,7 @@ import com.niuniu.motion.dto.ProfileDTO;
 import com.niuniu.motion.dto.RecordWeightDTO;
 import com.niuniu.motion.model.AccessTokenInfo;
 import com.niuniu.motion.model.dao.*;
-import com.niuniu.motion.model.query.*;
+import com.niuniu.motion.model.bean.*;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

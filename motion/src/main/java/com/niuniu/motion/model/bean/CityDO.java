@@ -1,4 +1,4 @@
-package com.niuniu.motion.model.query;
+package com.niuniu.motion.model.bean;
 
 import javax.persistence.*;
 
@@ -8,7 +8,7 @@ public class CityDO {
     @Id
     @GeneratedValue
     @Column(name = "city_id")
-    private Long cityId;
+    private Long id;
     @Column(name = "province")
     private String province;
     @Column(name = "city")
@@ -16,12 +16,12 @@ public class CityDO {
     @Column(name = "district")
     private String district;
 
-    public Long getCityId() {
-        return cityId;
+    public Long getId() {
+        return id;
     }
 
-    public void setCityId(Long cityId) {
-        this.cityId = cityId;
+    public void setId(Long cityId) {
+        this.id = cityId;
     }
 
     public String getProvince() {

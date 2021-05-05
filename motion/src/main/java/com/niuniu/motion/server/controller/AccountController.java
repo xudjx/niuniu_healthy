@@ -6,7 +6,6 @@ import com.niuniu.motion.common.exception.ServerCommonErrorCode;
 import com.niuniu.motion.core.manager.AccountManager;
 import com.niuniu.motion.dto.ProfileDTO;
 import com.niuniu.motion.dto.RecordWeightDTO;
-import com.niuniu.motion.dto.weather.CityDTO;
 import com.niuniu.motion.model.AccessTokenInfo;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;

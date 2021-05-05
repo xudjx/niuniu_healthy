@@ -10,7 +10,6 @@ import com.niuniu.motion.common.util.RedisUtil;
 import com.niuniu.motion.config.AuthConfig;
 import com.niuniu.motion.model.AccessTokenInfo;
 import com.niuniu.motion.model.dao.AccessTokenDAO;
-import com.niuniu.motion.model.query.AccessTokenDO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;

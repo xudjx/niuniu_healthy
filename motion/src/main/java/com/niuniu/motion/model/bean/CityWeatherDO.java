@@ -1,4 +1,4 @@
-package com.niuniu.motion.model.query;
+package com.niuniu.motion.model.bean;
 import javax.persistence.*;
 
 @Entity
